@@ -7,25 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		34EE54861A23E62A0028A760 /* BNCConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54721A23E62A0028A760 /* BNCConfig.h */; };
+		34EE54871A23E62A0028A760 /* BNCError.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54731A23E62A0028A760 /* BNCError.h */; };
+		34EE54881A23E62A0028A760 /* BNCError.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54741A23E62A0028A760 /* BNCError.m */; };
+		34EE54891A23E62A0028A760 /* BNCPreferenceHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54751A23E62A0028A760 /* BNCPreferenceHelper.h */; };
+		34EE548A1A23E62A0028A760 /* BNCPreferenceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54761A23E62A0028A760 /* BNCPreferenceHelper.m */; };
+		34EE548B1A23E62A0028A760 /* BNCServerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54771A23E62A0028A760 /* BNCServerInterface.h */; };
+		34EE548C1A23E62A0028A760 /* BNCServerInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54781A23E62A0028A760 /* BNCServerInterface.m */; };
+		34EE548D1A23E62A0028A760 /* BNCServerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54791A23E62A0028A760 /* BNCServerRequest.h */; };
+		34EE548E1A23E62A0028A760 /* BNCServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE547A1A23E62A0028A760 /* BNCServerRequest.m */; };
+		34EE548F1A23E62A0028A760 /* BNCServerRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE547B1A23E62A0028A760 /* BNCServerRequestQueue.h */; };
+		34EE54901A23E62A0028A760 /* BNCServerRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE547C1A23E62A0028A760 /* BNCServerRequestQueue.m */; };
+		34EE54911A23E62A0028A760 /* BNCServerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE547D1A23E62A0028A760 /* BNCServerResponse.h */; };
+		34EE54921A23E62A0028A760 /* BNCServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE547E1A23E62A0028A760 /* BNCServerResponse.m */; };
+		34EE54931A23E62A0028A760 /* BNCSystemObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE547F1A23E62A0028A760 /* BNCSystemObserver.h */; };
+		34EE54941A23E62A0028A760 /* BNCSystemObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54801A23E62A0028A760 /* BNCSystemObserver.m */; };
+		34EE54951A23E62A0028A760 /* Branch-SDK-Prefix.pch in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54811A23E62A0028A760 /* Branch-SDK-Prefix.pch */; };
+		34EE54961A23E62A0028A760 /* Branch.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54821A23E62A0028A760 /* Branch.h */; };
+		34EE54971A23E62A0028A760 /* Branch.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54831A23E62A0028A760 /* Branch.m */; };
+		34EE54981A23E62A0028A760 /* BranchServerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 34EE54841A23E62A0028A760 /* BranchServerInterface.h */; };
+		34EE54991A23E62A0028A760 /* BranchServerInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 34EE54851A23E62A0028A760 /* BranchServerInterface.m */; };
 		670016321940F4EC00A9E103 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 670016311940F4EC00A9E103 /* Foundation.framework */; };
-		670016391940F4EC00A9E103 /* Branch.m in Sources */ = {isa = PBXBuildFile; fileRef = 670016381940F4EC00A9E103 /* Branch.m */; };
-		6700169E194103AE00A9E103 /* BranchServerInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 67001698194103AE00A9E103 /* BranchServerInterface.m */; };
-		6700169F194103AE00A9E103 /* ServerInterface.m in Sources */ = {isa = PBXBuildFile; fileRef = 6700169A194103AE00A9E103 /* ServerInterface.m */; };
-		670016A0194103AE00A9E103 /* PreferenceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 6700169B194103AE00A9E103 /* PreferenceHelper.m */; };
-		670016A319410C9B00A9E103 /* SystemObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 670016A219410C9B00A9E103 /* SystemObserver.m */; };
-		670016A6194178F300A9E103 /* ServerRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 670016A5194178F300A9E103 /* ServerRequest.m */; };
 		673B442F195A3F9C005991DE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 673B442E195A3F9C005991DE /* UIKit.framework */; };
 		6782963C19ACE576009833D7 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6782963B19ACE576009833D7 /* AdSupport.framework */; };
-		6782963E19ACE676009833D7 /* Branch.h in Headers */ = {isa = PBXBuildFile; fileRef = 670016361940F4EC00A9E103 /* Branch.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6782963F19ACE6B6009833D7 /* PreferenceHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 6700169D194103AE00A9E103 /* PreferenceHelper.h */; };
-		6782964019ACE6B8009833D7 /* SystemObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 670016A119410C9B00A9E103 /* SystemObserver.h */; };
-		6782964119ACE6BB009833D7 /* ServerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 6700169C194103AE00A9E103 /* ServerInterface.h */; };
-		6782964219ACE6BE009833D7 /* ServerRequest.h in Headers */ = {isa = PBXBuildFile; fileRef = 670016A4194178F300A9E103 /* ServerRequest.h */; };
-		6782964319ACE6C0009833D7 /* BranchServerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 67001699194103AE00A9E103 /* BranchServerInterface.h */; };
-		7EAA790619E9024E008D4A83 /* ServerResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EAA790419E9024E008D4A83 /* ServerResponse.h */; };
-		7EAA790719E9024E008D4A83 /* ServerResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EAA790519E9024E008D4A83 /* ServerResponse.m */; };
-		7EE4E7B719DF1A6400ADD376 /* ServerRequestQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 7EE4E7B619DF1A6400ADD376 /* ServerRequestQueue.h */; };
-		7EE4E7B919DF1A6E00ADD376 /* ServerRequestQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EE4E7B819DF1A6E00ADD376 /* ServerRequestQueue.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,28 +45,31 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		34EE54721A23E62A0028A760 /* BNCConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCConfig.h; sourceTree = "<group>"; };
+		34EE54731A23E62A0028A760 /* BNCError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCError.h; sourceTree = "<group>"; };
+		34EE54741A23E62A0028A760 /* BNCError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCError.m; sourceTree = "<group>"; };
+		34EE54751A23E62A0028A760 /* BNCPreferenceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCPreferenceHelper.h; sourceTree = "<group>"; };
+		34EE54761A23E62A0028A760 /* BNCPreferenceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCPreferenceHelper.m; sourceTree = "<group>"; };
+		34EE54771A23E62A0028A760 /* BNCServerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCServerInterface.h; sourceTree = "<group>"; };
+		34EE54781A23E62A0028A760 /* BNCServerInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCServerInterface.m; sourceTree = "<group>"; };
+		34EE54791A23E62A0028A760 /* BNCServerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCServerRequest.h; sourceTree = "<group>"; };
+		34EE547A1A23E62A0028A760 /* BNCServerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCServerRequest.m; sourceTree = "<group>"; };
+		34EE547B1A23E62A0028A760 /* BNCServerRequestQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCServerRequestQueue.h; sourceTree = "<group>"; };
+		34EE547C1A23E62A0028A760 /* BNCServerRequestQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCServerRequestQueue.m; sourceTree = "<group>"; };
+		34EE547D1A23E62A0028A760 /* BNCServerResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCServerResponse.h; sourceTree = "<group>"; };
+		34EE547E1A23E62A0028A760 /* BNCServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCServerResponse.m; sourceTree = "<group>"; };
+		34EE547F1A23E62A0028A760 /* BNCSystemObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BNCSystemObserver.h; sourceTree = "<group>"; };
+		34EE54801A23E62A0028A760 /* BNCSystemObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BNCSystemObserver.m; sourceTree = "<group>"; };
+		34EE54811A23E62A0028A760 /* Branch-SDK-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Branch-SDK-Prefix.pch"; sourceTree = "<group>"; };
+		34EE54821A23E62A0028A760 /* Branch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Branch.h; sourceTree = "<group>"; };
+		34EE54831A23E62A0028A760 /* Branch.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Branch.m; sourceTree = "<group>"; };
+		34EE54841A23E62A0028A760 /* BranchServerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BranchServerInterface.h; sourceTree = "<group>"; };
+		34EE54851A23E62A0028A760 /* BranchServerInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BranchServerInterface.m; sourceTree = "<group>"; };
 		6700162E1940F4EC00A9E103 /* libBranch-SDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libBranch-SDK.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		670016311940F4EC00A9E103 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		670016351940F4EC00A9E103 /* Branch-SDK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Branch-SDK-Prefix.pch"; sourceTree = "<group>"; };
-		670016361940F4EC00A9E103 /* Branch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Branch.h; sourceTree = "<group>"; };
-		670016381940F4EC00A9E103 /* Branch.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Branch.m; sourceTree = "<group>"; };
-		67001698194103AE00A9E103 /* BranchServerInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BranchServerInterface.m; sourceTree = "<group>"; };
-		67001699194103AE00A9E103 /* BranchServerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BranchServerInterface.h; sourceTree = "<group>"; };
-		6700169A194103AE00A9E103 /* ServerInterface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerInterface.m; sourceTree = "<group>"; };
-		6700169B194103AE00A9E103 /* PreferenceHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferenceHelper.m; sourceTree = "<group>"; };
-		6700169C194103AE00A9E103 /* ServerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerInterface.h; sourceTree = "<group>"; };
-		6700169D194103AE00A9E103 /* PreferenceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferenceHelper.h; sourceTree = "<group>"; };
-		670016A119410C9B00A9E103 /* SystemObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SystemObserver.h; sourceTree = "<group>"; };
-		670016A219410C9B00A9E103 /* SystemObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SystemObserver.m; sourceTree = "<group>"; };
-		670016A4194178F300A9E103 /* ServerRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerRequest.h; sourceTree = "<group>"; };
-		670016A5194178F300A9E103 /* ServerRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerRequest.m; sourceTree = "<group>"; };
 		673B442E195A3F9C005991DE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		6782963B19ACE576009833D7 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
-		7E6ACAF419E317EF0066913E /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
-		7EAA790419E9024E008D4A83 /* ServerResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerResponse.h; sourceTree = "<group>"; };
-		7EAA790519E9024E008D4A83 /* ServerResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerResponse.m; sourceTree = "<group>"; };
-		7EE4E7B619DF1A6400ADD376 /* ServerRequestQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerRequestQueue.h; sourceTree = "<group>"; };
-		7EE4E7B819DF1A6E00ADD376 /* ServerRequestQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ServerRequestQueue.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,23 +116,26 @@
 		670016331940F4EC00A9E103 /* Branch-SDK */ = {
 			isa = PBXGroup;
 			children = (
-				670016361940F4EC00A9E103 /* Branch.h */,
-				670016381940F4EC00A9E103 /* Branch.m */,
-				6700169D194103AE00A9E103 /* PreferenceHelper.h */,
-				6700169B194103AE00A9E103 /* PreferenceHelper.m */,
-				670016A119410C9B00A9E103 /* SystemObserver.h */,
-				670016A219410C9B00A9E103 /* SystemObserver.m */,
-				6700169C194103AE00A9E103 /* ServerInterface.h */,
-				6700169A194103AE00A9E103 /* ServerInterface.m */,
-				670016A4194178F300A9E103 /* ServerRequest.h */,
-				670016A5194178F300A9E103 /* ServerRequest.m */,
-				67001699194103AE00A9E103 /* BranchServerInterface.h */,
-				67001698194103AE00A9E103 /* BranchServerInterface.m */,
-				7EE4E7B619DF1A6400ADD376 /* ServerRequestQueue.h */,
-				7EE4E7B819DF1A6E00ADD376 /* ServerRequestQueue.m */,
-				7E6ACAF419E317EF0066913E /* Config.h */,
-				7EAA790419E9024E008D4A83 /* ServerResponse.h */,
-				7EAA790519E9024E008D4A83 /* ServerResponse.m */,
+				34EE54721A23E62A0028A760 /* BNCConfig.h */,
+				34EE54731A23E62A0028A760 /* BNCError.h */,
+				34EE54741A23E62A0028A760 /* BNCError.m */,
+				34EE54751A23E62A0028A760 /* BNCPreferenceHelper.h */,
+				34EE54761A23E62A0028A760 /* BNCPreferenceHelper.m */,
+				34EE54771A23E62A0028A760 /* BNCServerInterface.h */,
+				34EE54781A23E62A0028A760 /* BNCServerInterface.m */,
+				34EE54791A23E62A0028A760 /* BNCServerRequest.h */,
+				34EE547A1A23E62A0028A760 /* BNCServerRequest.m */,
+				34EE547B1A23E62A0028A760 /* BNCServerRequestQueue.h */,
+				34EE547C1A23E62A0028A760 /* BNCServerRequestQueue.m */,
+				34EE547D1A23E62A0028A760 /* BNCServerResponse.h */,
+				34EE547E1A23E62A0028A760 /* BNCServerResponse.m */,
+				34EE547F1A23E62A0028A760 /* BNCSystemObserver.h */,
+				34EE54801A23E62A0028A760 /* BNCSystemObserver.m */,
+				34EE54811A23E62A0028A760 /* Branch-SDK-Prefix.pch */,
+				34EE54821A23E62A0028A760 /* Branch.h */,
+				34EE54831A23E62A0028A760 /* Branch.m */,
+				34EE54841A23E62A0028A760 /* BranchServerInterface.h */,
+				34EE54851A23E62A0028A760 /* BranchServerInterface.m */,
 				670016341940F4EC00A9E103 /* Supporting Files */,
 			);
 			path = "Branch-SDK";
@@ -146,14 +156,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6782963E19ACE676009833D7 /* Branch.h in Headers */,
-				6782964319ACE6C0009833D7 /* BranchServerInterface.h in Headers */,
-				6782964219ACE6BE009833D7 /* ServerRequest.h in Headers */,
-				7EE4E7B719DF1A6400ADD376 /* ServerRequestQueue.h in Headers */,
-				7EAA790619E9024E008D4A83 /* ServerResponse.h in Headers */,
-				6782963F19ACE6B6009833D7 /* PreferenceHelper.h in Headers */,
-				6782964019ACE6B8009833D7 /* SystemObserver.h in Headers */,
-				6782964119ACE6BB009833D7 /* ServerInterface.h in Headers */,
+				34EE548D1A23E62A0028A760 /* BNCServerRequest.h in Headers */,
+				34EE54961A23E62A0028A760 /* Branch.h in Headers */,
+				34EE54871A23E62A0028A760 /* BNCError.h in Headers */,
+				34EE54981A23E62A0028A760 /* BranchServerInterface.h in Headers */,
+				34EE548B1A23E62A0028A760 /* BNCServerInterface.h in Headers */,
+				34EE54911A23E62A0028A760 /* BNCServerResponse.h in Headers */,
+				34EE54931A23E62A0028A760 /* BNCSystemObserver.h in Headers */,
+				34EE548F1A23E62A0028A760 /* BNCServerRequestQueue.h in Headers */,
+				34EE54861A23E62A0028A760 /* BNCConfig.h in Headers */,
+				34EE54951A23E62A0028A760 /* Branch-SDK-Prefix.pch in Headers */,
+				34EE54891A23E62A0028A760 /* BNCPreferenceHelper.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -209,14 +222,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7EE4E7B919DF1A6E00ADD376 /* ServerRequestQueue.m in Sources */,
-				7EAA790719E9024E008D4A83 /* ServerResponse.m in Sources */,
-				670016A0194103AE00A9E103 /* PreferenceHelper.m in Sources */,
-				6700169E194103AE00A9E103 /* BranchServerInterface.m in Sources */,
-				670016A6194178F300A9E103 /* ServerRequest.m in Sources */,
-				6700169F194103AE00A9E103 /* ServerInterface.m in Sources */,
-				670016A319410C9B00A9E103 /* SystemObserver.m in Sources */,
-				670016391940F4EC00A9E103 /* Branch.m in Sources */,
+				34EE54971A23E62A0028A760 /* Branch.m in Sources */,
+				34EE54991A23E62A0028A760 /* BranchServerInterface.m in Sources */,
+				34EE548C1A23E62A0028A760 /* BNCServerInterface.m in Sources */,
+				34EE548A1A23E62A0028A760 /* BNCPreferenceHelper.m in Sources */,
+				34EE548E1A23E62A0028A760 /* BNCServerRequest.m in Sources */,
+				34EE54901A23E62A0028A760 /* BNCServerRequestQueue.m in Sources */,
+				34EE54881A23E62A0028A760 /* BNCError.m in Sources */,
+				34EE54921A23E62A0028A760 /* BNCServerResponse.m in Sources */,
+				34EE54941A23E62A0028A760 /* BNCSystemObserver.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
