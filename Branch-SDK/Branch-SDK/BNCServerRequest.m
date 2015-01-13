@@ -7,7 +7,7 @@
 //
 
 #import "BNCServerRequest.h"
-#import "BNCConfig.h"
+#import "BNCPreferenceHelper.h"
 
 #define TAG         @"TAG"
 #define DATA        @"POSTDATA"
@@ -20,8 +20,12 @@
 @implementation BNCServerRequest
 
 - (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeObject:self.tag forKey:TAG];
-    [coder encodeObject:self.postData forKey:DATA];
+    if (self.tag) {
+        [coder encodeObject:self.tag forKey:TAG];
+    }
+    if (self.postData) {
+        [coder encodeObject:self.postData forKey:DATA];
+    }
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
@@ -38,7 +42,8 @@
 
 - (id)initWithTag:(NSString *)tag andData:(NSDictionary *)postData {
     if (!tag) {
-        Debug(@"Invalid: server request missing tag!");
+        
+        [BNCPreferenceHelper log:FILE_NAME line:LINE_NUM message:@"Invalid: server request missing tag!"];
         return nil;
     }
     

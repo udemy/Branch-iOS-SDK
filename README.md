@@ -44,7 +44,7 @@ Or just clone this project!
 
 ### Register you app
 
-You can sign up for your own app id at http://dashboard.branchmetrics.io
+You can sign up for your own app id at [https://dashboard.branch.io](https://dashboard.branch.io)
 
 ## Configuration (for tracking)
 
@@ -54,7 +54,7 @@ Ideally, you want to use our links any time you have an external link pointing t
 1. Our links are the highest possible converting channel to new downloads and users
 1. You can pass that shared data across install to give new users a custom welcome or show them the content they expect to see
 
-Our linking infrastructure will support anything you want to build. If it doesn't, we'll fix it so that it does: just reach out to alex@branchmetrics.io with requests.
+Our linking infrastructure will support anything you want to build. If it doesn't, we'll fix it so that it does: just reach out to alex@branch.io with requests.
 
 ### Register a URI scheme direct deep linking (optional but recommended)
 
@@ -81,12 +81,13 @@ Called when app first initializes a session, ideally in the app delegate. If you
 
 This deep link routing callback is called 100% of the time on init, with your link params or an empty dictionary if none present.
 
+##### Objective-C
 ```objc
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
 	// your other init code
 
 
-	// sign up to get your key at http://branch.io
+	// Your app key can be retrieved on the [Settings](https://dashboard.branch.io/#/settings) page of the dashboard
 	Branch *branch = [Branch getInstance:@"Your app key"];
 	[branch initSessionWithLaunchOptions:launchOptions andRegisterDeepLinkHandler:^(NSDictionary *params, NSError *error) {		// previously initUserSessionWithCallback:withLaunchOptions:
         if (!error) {
@@ -110,10 +111,48 @@ This deep link routing callback is called 100% of the time on init, with your li
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
 	// pass the url to the handle deep link call
 	// if handleDeepLink returns YES, and you registered a callback in initSessionAndRegisterDeepLinkHandler, the callback will be called with the data associated with the deep link
-	if (![[Branch getInstance] handleDeepLink:url]) {
+	if (![[Branch getInstance:@"Your app key"] handleDeepLink:url]) {
 		// do other deep link routing for the Facebook SDK, Pinterest SDK, etc
 	}
     return YES;
+}
+```
+
+##### Swift
+```swift
+func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    // your other init code
+	
+    let branch: Branch = Branch.getInstance("Your app key")
+    branch.initSessionWithLaunchOptions(launchOptions, andRegisterDeepLinkHandler: { params, error in
+        if (error == nil) {
+            // params are the deep linked params associated with the link that the user clicked before showing up
+            // params will be empty if no data found
+            
+                
+            // here is the data from the example below if a new user clicked on Joe's link and installed the app
+            let name = params["user"] as? String                // returns Joe
+            let profileUrl = params["profile_pic"] as? String   // returns https://s3-us-west-1.amazonaws.com/myapp/joes_pic.jpg
+            let description = params["description"] as? String  // returns Joe likes long walks on the beach...
+                
+            // route to a profile page in the app for Joe
+            // show a customer welcome
+        }
+    })
+        
+    return true
+}
+```
+
+```swift
+func application(application: UIApplication, openURL url: NSURL, sourceApplication: String?, annotation: AnyObject?) -> Bool {
+    // pass the url to the handle deep link call
+    // if handleDeepLink returns true, and you registered a callback in initSessionAndRegisterDeepLinkHandler, the callback will be called with the data associated with the deep link
+    if (!Branch.getInstance("Your app key").handleDeepLink(url)) {
+        // do other deep link routing for the Facebook SDK, Pinterest SDK, etc
+    }
+        
+    return true
 }
 ```
 
@@ -175,7 +214,9 @@ Some example events you might want to track:
 
 ### Shortened links
 
-There are a bunch of options for creating these links. You can tag them for analytics in the dashboard, or you can even pass data to the new installs or opens that come from the link click. How awesome is that? You need to pass a callback for when you link is prepared (which should return very quickly, ~ 100 ms to process). If you don't want a callback, and can tolerate long links, you can explore the getLongUrl method family.
+There are a bunch of options for creating these links. You can tag them for analytics in the dashboard, or you can even pass data to the new installs or opens that come from the link click. How awesome is that? You need to pass a callback for when you link is prepared (which should return very quickly, ~ 50 ms to process).
+
+For more details on how to create links, see the [Branch link creation guide](https://github.com/BranchMetrics/Branch-Integration-Guides/blob/master/url-creation-guide.md)
 
 ```objc
 // associate data with a link
@@ -196,30 +237,49 @@ NSMutableDictionary *params = [[NSMutableDictionary alloc] init];
 // Link 'type' can be used for scenarios where you want the link to only deep link the first time. 
 // Use _nil_, _BranchLinkTypeUnlimitedUse_ or _BranchLinkTypeOneTimeUse_
 
+// Link 'alias' can be used to label the endpoint on the link. For example: http://bnc.lt/AUSTIN28. 
+// Be careful about aliases: these are immutable objects permanently associated with the data and associated paramters you pass into the link. When you create one in the SDK, it's tied to that user identity as well (automatically specified by the Branch internals). If you want to retrieve the same link again, you'll need to call getShortUrl with all of the same parameters from before.
+
 Branch *branch = [Branch getInstance];
-[branch getShortURLWithParams:params andTags:@[@"version1", @"trial6"] andChannel:@"text_message" andFeature:BRANCH_FEATURE_TAG_SHARE andStage:@"level_6" andType:BranchLinkTypeUnlimitedUse andCallback:^(NSString *url, NSError *error) {
+[branch getShortURLWithParams:params andTags:@[@"version1", @"trial6"] andChannel:@"text_message" andFeature:BRANCH_FEATURE_TAG_SHARE andStage:@"level_6" andAlias:@"AUSTIN68" andCallback:^(NSString *url, NSError *error) {
 	// show the link to the user or share it immediately
 }];
+
+// The callback will return null if the link generation fails (or if the alias specified is aleady taken.)
 ```
 
 There are other methods which exclude tag and data if you don't want to pass those. Explore Xcode's autocomplete functionality.
 
 **Note**
-You can customize the Facebook OG tags of each URL if you want to dynamically share content by using the following optional keys in the params dictionary:
-```objc
-@"$og_app_id"
-@"$og_title"
-@"$og_description"
-@"$og_image_url"
-```
+You can customize the Facebook OG tags of each URL if you want to dynamically share content by using the following _optional keys in the data dictionary_:
 
-Also, you do custom redirection by inserting the following optional keys in the dictionary. For example, if you want to send users on the desktop to a page on your website, insert the $desktop_url with that URL value
-```objc
-@"$desktop_url"
-@"$android_url"
-@"$ios_url"
-@"$ipad_url"
-```
+| Key | Value
+| --- | ---
+| "$og_title" | The title you'd like to appear for the link in social media
+| "$og_description" | The description you'd like to appear for the link in social media
+| "$og_image_url" | The URL for the image you'd like to appear for the link in social media
+| "$og_video" | The URL for the video 
+| "$og_url" | The URL you'd like to appear
+| "$og_app_id" | Your OG app ID. Optional and rarely used.
+
+Also, you do custom redirection by inserting the following _optional keys in the dictionary_:
+
+| Key | Value
+| --- | ---
+| "$desktop_url" | Where to send the user on a desktop or laptop. By default it is the Branch-hosted text-me service
+| "$android_url" | The replacement URL for the Play Store to send the user if they don't have the app. _Only necessary if you want a mobile web splash_
+| "$ios_url" | The replacement URL for the App Store to send the user if they don't have the app. _Only necessary if you want a mobile web splash_
+| "$ipad_url" | Same as above but for iPad Store
+| "$fire_url" | Same as above but for Amazon Fire Store
+| "$blackberry_url" | Same as above but for Blackberry Store
+| "$windows_phone_url" | Same as above but for Windows Store
+
+You have the ability to control the direct deep linking of each link by inserting the following _optional keys in the dictionary_:
+
+| Key | Value
+| --- | ---
+| "$deeplink_path" | The value of the deep link path that you'd like us to append to your URI. For example, you could specify "$deeplink_path": "radio/station/456" and we'll open the app with the URI "yourapp://radio/station/456?link_click_id=branch-identifier". This is primarily for supporting legacy deep linking infrastructure. 
+| "$always_deeplink" | true or false. (default is not to deep link first) This key can be specified to have our linking service force try to open the app, even if we're not sure the user has the app installed. If the app is not installed, we fall back to the respective app store or $platform_url key. By default, we only open the app if we've seen a user initiate a session in your app from a Branch link (has been cookied and deep linked by Branch)
 
 ## Referral system rewarding functionality
 
@@ -256,6 +316,59 @@ We will store how many of the rewards have been deployed so that you don't have 
 // Save that the user has redeemed 5 credits
 [[Branch getInstance] redeemRewards:5];
 ```
+
+### Get credit history
+
+This call will retrieve the entire history of credits and redemptions from the individual user. To use this call, implement like so:
+
+```objc
+[[Branch getInstance] getCreditHistoryWithCallback:^(NSArray *history, NSError *error) {
+    if (!error) {
+        // process history
+    }
+}];
+```
+
+The response will return an array that has been parsed from the following JSON:
+```json
+[
+    {
+        "transaction": {
+                           "date": "2014-10-14T01:54:40.425Z",
+                           "id": "50388077461373184",
+                           "bucket": "default",
+                           "type": 0,
+                           "amount": 5
+                       },
+        "referrer": "12345678",
+        "referree": null
+    },
+    {
+        "transaction": {
+                           "date": "2014-10-14T01:55:09.474Z",
+                           "id": "50388199301710081",
+                           "bucket": "default",
+                           "type": 2,
+                           "amount": -3
+                       },
+        "referrer": null,
+        "referree": "12345678"
+    }
+]
+```
+**referrer**
+: The id of the referring user for this credit transaction. Returns null if no referrer is involved. Note this id is the user id in developer's own system that's previously passed to Branch's identify user API call.
+
+**referree**
+: The id of the user who was referred for this credit transaction. Returns null if no referree is involved. Note this id is the user id in developer's own system that's previously passed to Branch's identify user API call.
+
+**type**
+: This is the type of credit transaction
+
+1. _0_ - A reward that was added automatically by the user completing an action or referral
+1. _1_ - A reward that was added manually
+2. _2_ - A redemption of credits that occurred through our API or SDKs
+3. _3_ - This is a very unique case where we will subtract credits automatically when we detect fraud
 
 ### Get referral code
 
