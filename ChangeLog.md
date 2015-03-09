@@ -1,5 +1,35 @@
 Branch iOS SDK change log 
 
+- v0.4.7: Rework of `BNCServerInterface encodePostToUniversalString:needSource:`
+
+- v0.4.6.2: Added unit tests
+
+- V0.4.6.1: Exposed duration in getShortUrl for tuning link click match duration
+
+- V0.4.6: Added API Key to GET requests; Fixed iOS 6 issue in UIActivityItemProvider
+
+- v0.4.5: Double check all delegates when switching to main queue
+
+- v0.4.4: Fixed potential deadlock issue
+
+- v0.4.3: Added app listing
+
+- v0.4.2: Added API's for getShortURL Synchrnously
+
+- v0.4.1: Added BranchActivityItemProvider
+
+- v0.4.0: Made CoreTelephony framework optional, Added UIActivityView item provider, Make debug clear device fingerprint
+
+- v0.3.102: Caching short url's for the same parameters
+
+- v0.3.101: Completely fixed nil sessionparamLoadCallback issue
+
+- v0.3.100: Fixed nilling sessionparamLoadCallback in initSession
+
+- v0.3.99: Restored old way to specify app key in app delegate as an alternative to plist
+
+- v0.3.98: Removed swizzling for debugger
+
 - v0.3.97: Moved app key to plist
 
 - v0.3.96: Added adTrackingSafe
