@@ -1,19 +1,7 @@
-target 'Branch-TestBed' do
+source 'https://github.com/CocoaPods/Specs.git'
 
-end
+platform :ios, '6.0'
 
-target 'Branch-SDK Functionality Tests' do
-  pod 'Nocilla', :inhibit_warnings => true
-end
-
-target 'Branch-SDK Load Tests' do
-  pod 'Nocilla', :inhibit_warnings => true
-end
-
-target 'Branch-SDK Debugger Tests' do
-  pod 'Nocilla', :inhibit_warnings => true
-end
-
-target 'Branch-SDK UI Tests' do
-  pod 'Nocilla', :inhibit_warnings => true
+target 'Branch-SDK-Tests' do
+  pod 'OCMock'
 end

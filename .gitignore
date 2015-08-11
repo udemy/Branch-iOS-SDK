@@ -1,2 +1,4 @@
+Pods/
 *.xcuserstate
 *.xcuserdatad
+*.DS_Store

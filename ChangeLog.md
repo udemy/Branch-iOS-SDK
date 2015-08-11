@@ -1,4 +1,177 @@
-Branch iOS SDK change log 
+Branch iOS SDK change log
+
+- v0.10.9
+  * Renaming `completionDelegate` to `deepLinkingCompletionDelegate` to avoid conflicts with Apple internals.
+  * Changing behavior of `isReferrable` to default to true, unless otherwise specified.
+
+- v0.10.8
+  * Thanks @allenhsu for noticing and fixing our character encoding length issues!
+  * Less verbose logging for queue processing failures.
+
+- v0.10.7
+  * Updating debugging requests so they aren't persisted (and aren't loaded) from the queue.
+
+- v0.10.6
+  * Fix queue handling for any future issues with requests.
+  * Allow for NSTimeInterval instead of NSInteger timeout / retry, for subsequent preferences.
+  * Fix missing symbols on iOS 6.
+  * Fix an issue with the fallback url creation for shortUrl.
+  * Added a ton of tests around the new requests.
+  * Fixing deployment target for Branch library.
+
+- v0.10.5
+  * Added back BranchGetAppListRequest class too
+
+- v0.10.4
+  * Added back BranchUpdateAppListRequest class to fix crashes
+
+- v0.10.3
+  * Removing the AppListing functionality, as it is explicitly disallowed on iOS 9.
+  * Updating behavior for when installParams / getFirstReferringParams are set. Specifically, it will now only happen when
+    * If isReferrable is false, it will not be set.
+    * If the session data returned from the API call is empty, it will not be set.
+    * If the session data is not from a link click, it will not be set.
+    * If the request is an open request, it will only be set if install params are empty.  
+
+- v0.10.2
+  * Fixing potential for bad types to come through in UserIdentity (number rather than string).
+
+- v0.10.1
+  * Fixing a bad key check in the CreditHistory callback, allowing NSNulls through.
+
+- v0.10.0
+  * Adding an automatic deep linking feature, allowing devs to register a controller to be displayed based on keys in the open dictionary.
+  * Adding a delegate to the `BranchActivityItemProvider`, allowing devs to override link items based on selected sharing network.
+  * Fixed a potential crash w/ the persistence item if modified while saving.
+  * Deprecated some additional functions for the `getActivityItem:` methods, trying to move away from using "and" in method naming.
+  * Adding a check to prevent requests from being made when the SDK is in a bad state (missing device fingerprint or session).
+  * Exposed the `BNCConfig` header in the framework.
+
+- v0.9.3
+  * Clearing the Link Cache on logout; links shouldn't be shared between users.
+
+- v0.9.2
+  * Fixing check for isReferrable. No longer automatically setting to true for `handleDeepLink:`, and checking against `@0` since `nil` isn't possible.
+  * Making PreferenceHelper and non-singleton, and saving to file instead of using NSUserDefaults which made us prone to having our info wiped out from under us. Also keeping objects in memory, so that they don't need to be retrieved for each reference.
+
+- v0.9.1
+  * Fixing an issue with archiving requests when requests are allocated too early.
+  * Fixing a potential crash while calling close without a session.
+  * Lots of readme updates.
+
+- v0.9.0
+  * Renaming Referral Codes to Promo Codes.
+
+- v0.8.4
+  * Fixing an issue with getShortUrl.
+
+- v0.8.3
+  * Fixing an issue with Open / Install requests losing their callbacks, but not being dequeued.
+  * Updating default config values (timeout: 5, retries: 1, sleep: 0).
+  * Cleaning up the Link Cache.
+  * Adding Bundle ID to Open / Install requests.
+  * Fixing an issue causing double escaped params.
+
+- v0.8.2
+  * Fix issue with callbacks being lost on some of the internal requests.
+  * Fix issue with old requests not fitting the new request format, causing crsahes.
+
+- v0.8.1
+  * Fix potential for bad reference when no callback is provided to `redeemRewards` call.
+
+- v0.8.0
+  * Split up all requests into their own classes to make them unit testable.
+  * Replace base64 implementation which could potentially crash.
+  * Remove most logic from the PreferenceHelper.
+
+- v0.7.8
+  * Removing source attribute from `encodeDictionaryToJsonString`, only added to short url generation now.
+  * Fixing bad content type in `prepareGetRequest`.
+  * Creating scripts for an automated release process.
+  * Fixing a bad callback in `processNextQueueItem`, potentially causing a crash.
+  * Adding and documenting all of the new constants added in the Branch initSession callback.
+
+- v0.7.7 Changing the time for update state checks to give better install attribution.
+
+- v0.7.6
+  * Exposing `isUserIdentified` to allow devs to understand if Branch has a User Identity set.
+  * Removing all instances of `bnc_no_value` from the SDK.
+  * Creating a separate error code for Branch being down vs a request failing
+  * Fixing a bug where and error would cause queue processing to stop, and pending request to be failed.
+
+- v0.7.5 Prefixing constants to avoid collisions with other frameworks.
+
+- v0.7.4
+  * Fixing key usage throughout the SDK. When you call `getTestInstance` or `getInstance:`, the proper key will now make it through to requests.
+  * Cleaning up debug logic internally. The static usage of `setDebug` is now deprecated, please move toward using the instance method.
+
+- v0.7.3
+  * Fixing Branch down check (>= 500 instead of > 500).
+  * Removing tag from all BNCServerInterface methods.
+  * Moving request retry delay off the main thread.
+  * Removing committed CocoaPod files.
+
+- v0.7.2
+  * Added docs to the header, compatible with [AppleDoc](https://github.com/tomaz/appledoc) and available on [cocoadocs.org](cocoadocs.org).
+  * De-coupling all of the Branch dependencies to make them injectable. This will significantly improve test stability.
+  * Clearing all Branch related items when the Branch key being used in the app changes. This prevents invalid items from making it to the server.
+
+- v0.7.1 Adding a missing item to the pod spec headers.
+
+- v0.7.0
+  * Large rewrite of the internals of Branch.m to make things more stable, predictable, readable, and maintainable.
+  * Added callbacks to the `redeemRewards` methods.
+  * Updating Queue persistence to be non-immediate. Rather than persisting to disk on every change, it persists after time has elapsed to prevent hanging issues when in a loop.
+  * Making errors more specific -- now you actually get the error message back, instead of a generic one.
+  * Fixing issue with BranchActivityItemProvider when using the Twitter share sheet.
+  * Removing temporary backwards compat typedefs.
+
+- v0.6.3:
+  * Addressing an issue identified by iHeartRadio where decoding a JSON string could cause crashes.
+  * Adding the ability to opt out of the app list check.
+
+- v0.6.2:
+  * Fixing an issue with the newest Facebook app not working with the ShareSheet unless an NSURL is present.
+  * Fixing user url generation for `getShortUrl` failure callbacks.
+  * Fixing a couple issues with `setDebug`.
+  * Using NS_ENUMs.
+  * Removing remaining internal `setUriScheme` code.
+  * Cleaning up update state logic.
+
+- v0.6.1: Issue with requests in the queue having their data updated when they were immutable. Updating BNCServerRequest interface to prevent this from happening in the future.
+
+- v0.6.0: We have deprecated the use of `bnc_app_key` and are now using `branch_key`, which can be obtained in the settings page of your Dashboard. The replacement in the SDK should happen in the plist, as well as in `+(Branch *)getInstance:(NSString *)branchKey;` if necessary.
+
+- v0.5.9: Revert of the URI Scheme updates.
+
+- v0.5.8:
+  * Fixing an issue with the creation of NSError userInfo dictionaries.
+  * Updating behavior of URI Scheme detection -- you should now name the scheme you want to use "io.branch.sdk." The previous behavior will be maintained for some time.
+  * You can additionally specify which scheme to use via `[[Branch getInstance] setUriScheme:@"myapp://"]`
+
+- v0.5.7: Adding handling around the Facebook share sheet to prevent incorrect link clicks. Removing `branch_key` warning message.
+
+- v0.5.6: Issue sending proper update to server if isReferrable not set
+
+- v0.5.5: Reverting branch_key change until server component is updated. Fixing an issue with getShortUrl failures causing crashes.
+
+- v0.5.4: A large number of changes have been included in this version, but all are backwards compatibile.
+  * Retry Number has been added to all requests, so that the server is able to differentiate.
+  * Organization of some of the encoding methods in the repository has been centralized.
+  * Fixed an encoding bug with empty param dictionaries and arrays.
+  * A couple of encoding issues were fixed, and a large number of tests have been added.
+  * Perhaps most importantly, the `branch_key` is now replacing the `bnc_app_key` and `app_id` items. For now, both will continue to work, but the non-`branch_key` items are deprecated, and will be removed with `0.6.0`.
+  * The presence of `app_id` and `branch_key` has been ensured across all requests, no longer piecemeal.
+
+- v0.5.3: Follow up to 0.5.2, now looks at Documents directory creation date and considers this to be the original app install date
+
+- v0.5.2: Recent iOS update resets bundle file creation date on update, messing with our update/install detection method
+
+- v0.5.1: Fixed request black hole after initSession failed
+
+- V0.5.0: Removed Default URL argument from BranchActivityItemProvider, and replaced with an automatically generated long URL placeholder
+
+- v0.4.8: Fixed hashing issue on very long NSString in link caching
 
 - v0.4.7: Rework of `BNCServerInterface encodePostToUniversalString:needSource:`
 
@@ -36,7 +209,7 @@ Branch iOS SDK change log
 
 - v0.3.95: Added BNCDebugging category to framework
 
-- v0.3.91: Added getters/setters for API timeout, retryInterval and retryCount 
+- v0.3.91: Added getters/setters for API timeout, retryInterval and retryCount
 
 - v0.3.90: Added more info to debug connect
 
