@@ -35,6 +35,9 @@
 #import "BranchConnectDebugRequest.h"
 #import "BranchDisconnectDebugRequest.h"
 #import "BranchLogRequest.h"
+#import "BNCContentDiscoveryManager.h"
+#import "BranchSpotlightUrlRequest.h"
+#import "BNCStrongMatchHelper.h"
 
 NSString * const BRANCH_FEATURE_TAG_SHARE = @"share";
 NSString * const BRANCH_FEATURE_TAG_REFERRAL = @"referral";
@@ -71,11 +74,13 @@ static int BNCDebugTriggerFingersSimulator = 2;
 @property (assign, nonatomic) BOOL shouldAutomaticallyDeepLink;
 @property (strong, nonatomic) BNCLinkCache *linkCache;
 @property (strong, nonatomic) BNCPreferenceHelper *preferenceHelper;
+@property (strong, nonatomic) BNCContentDiscoveryManager *contentDiscoveryManager;
 @property (strong, nonatomic) UILongPressGestureRecognizer *debugGestureRecognizer;
 @property (strong, nonatomic) NSTimer *debugHeartbeatTimer;
 @property (strong, nonatomic) NSString *branchKey;
 @property (strong, nonatomic) NSMutableDictionary *deepLinkControllers;
 @property (weak, nonatomic) UIViewController *deepLinkPresentingController;
+@property (nonatomic) BOOL cookieBasedMatchingEnabled;
 
 @end
 
@@ -153,6 +158,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         _preferenceHelper = preferenceHelper;
         _branchKey = key;
         
+        _contentDiscoveryManager = [[BNCContentDiscoveryManager alloc] init];
         _isInitialized = NO;
         _shouldCallSessionInitCallback = YES;
         _processing_sema = dispatch_semaphore_create(1);
@@ -161,7 +167,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         
         NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
         [notificationCenter addObserver:self selector:@selector(applicationWillResignActive) name:UIApplicationWillResignActiveNotification object:nil];
-        [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
+        [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];            
     }
 
     return self;
@@ -244,6 +250,10 @@ static int BNCDebugTriggerFingersSimulator = 2;
     self.preferenceHelper.retryInterval = retryInterval;
 }
 
+- (void)enableCookieBasedMatching {
+    self.cookieBasedMatchingEnabled = YES;
+}
+
 
 #pragma mark - InitSession Permutation methods
 
@@ -321,8 +331,18 @@ static int BNCDebugTriggerFingersSimulator = 2;
     self.preferenceHelper.isReferrable = isReferrable;
     self.preferenceHelper.explicitlyRequestedReferrable = explicitlyRequestedReferrable;
     
-    if (![options objectForKey:UIApplicationLaunchOptionsURLKey]) {
-        [self initUserSessionAndCallCallback:YES];
+    if ([BNCSystemObserver getOSVersion].integerValue >= 8) {
+        if (![options objectForKey:UIApplicationLaunchOptionsURLKey] && ![options objectForKey:UIApplicationLaunchOptionsUserActivityDictionaryKey]) {
+            [self initUserSessionAndCallCallback:YES];
+        }
+        else if ([options objectForKey:UIApplicationLaunchOptionsUserActivityDictionaryKey]) {
+            self.preferenceHelper.isContinuingUserActivity = YES;
+        }
+    }
+    else {
+        if (![options objectForKey:UIApplicationLaunchOptionsURLKey]) {
+            [self initUserSessionAndCallCallback:YES];
+        }
     }
 }
 
@@ -344,6 +364,33 @@ static int BNCDebugTriggerFingersSimulator = 2;
     [self initUserSessionAndCallCallback:YES];
 
     return handled;
+}
+
+- (BOOL)continueUserActivity:(NSUserActivity *)userActivity {
+    if ([userActivity.activityType isEqualToString:NSUserActivityTypeBrowsingWeb]) {
+        self.preferenceHelper.universalLinkUrl = [userActivity.webpageURL absoluteString];
+
+        [self initUserSessionAndCallCallback:YES];
+        self.preferenceHelper.isContinuingUserActivity = NO;
+
+        return [[userActivity.webpageURL absoluteString] containsString:@"bnc.lt"];
+    }
+    
+    NSString *spotlightIdentifier = [self.contentDiscoveryManager spotlightIdentifierFromActivity:userActivity];
+    
+    if (spotlightIdentifier) {
+        self.preferenceHelper.spotlightIdentifier = spotlightIdentifier;
+    }
+    else {
+        NSString *nonBranchSpotlightIdentifier = [self.contentDiscoveryManager standardSpotlightIdentifierFromActivity:userActivity];
+        if (nonBranchSpotlightIdentifier) {
+            self.preferenceHelper.spotlightIdentifier = nonBranchSpotlightIdentifier;
+        }
+    }
+    [self initUserSessionAndCallCallback:YES];
+    self.preferenceHelper.isContinuingUserActivity = NO;
+
+    return spotlightIdentifier != nil;
 }
 
 
@@ -368,7 +415,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         return;
     }
     
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -399,7 +446,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - User Action methods
 
 - (void)loadActionCountsWithCallback:(callbackWithStatus)callback {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
 
@@ -425,7 +472,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         return;
     }
     
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -438,7 +485,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - Credit methods
 
 - (void)loadRewardsWithCallback:(callbackWithStatus)callback {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
 
@@ -489,7 +536,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         return;
     }
     
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
 
@@ -511,7 +558,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 }
 
 - (void)getCreditHistoryForBucket:(NSString *)bucket after:(NSString *)creditTransactionId number:(NSInteger)length order:(BranchCreditHistoryOrder)order andCallback:(callbackWithList)callback {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
 
@@ -532,11 +579,11 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - ContentUrl methods
 
 - (NSString *)getContentUrlWithParams:(NSDictionary *)params andChannel:(NSString *)channel {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_SHARE andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_SHARE andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getContentUrlWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel {
-    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_SHARE andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_SHARE andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (void)getContentUrlWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andCallback:(callbackWithUrl)callback {
@@ -551,51 +598,55 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - ShortUrl methods
 
 - (NSString *)getShortURL {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:nil andFeature:nil andStage:nil andParams:nil ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:nil andFeature:nil andStage:nil andParams:nil ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:nil andFeature:nil andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:nil andFeature:nil andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage {
-    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andAlias:(NSString *)alias {
-    return [self generateShortUrl:tags andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andAlias:(NSString *)alias ignoreUAString:(NSString *)ignoreUAString {
-    return [self generateShortUrl:tags andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:ignoreUAString];
+    return [self generateShortUrl:tags andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:ignoreUAString forceLinkCreation:NO];
+}
+
+- (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andAlias:(NSString *)alias ignoreUAString:(NSString *)ignoreUAString forceLinkCreation:(BOOL)forceLinkCreation {
+    return [self generateShortUrl:tags andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:ignoreUAString forceLinkCreation:forceLinkCreation];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andType:(BranchLinkType)type {
-    return [self generateShortUrl:tags andAlias:nil andType:type andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:nil andType:type andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andMatchDuration:(NSUInteger)duration {
-    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:duration andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:duration andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andAlias:(NSString *)alias {
-    return [self generateShortUrl:nil andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:alias andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andType:(BranchLinkType)type {
-    return [self generateShortUrl:nil andAlias:nil andType:type andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:type andMatchDuration:0 andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andMatchDuration:(NSUInteger)duration {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:duration andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:duration andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getShortURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andFeature:(NSString *)feature {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (void)getShortURLWithCallback:(callbackWithUrl)callback {
@@ -642,6 +693,16 @@ static int BNCDebugTriggerFingersSimulator = 2;
     [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:feature andStage:nil andParams:params andCallback:callback];
 }
 
+- (void)getSpotlightUrlWithParams:(NSDictionary *)params callback:(callbackWithParams)callback {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
+        [self initUserSessionAndCallCallback:NO];
+    }
+    
+    BranchSpotlightUrlRequest *req = [[BranchSpotlightUrlRequest alloc] initWithParams:params callback:callback];
+    [self.requestQueue enqueue:req];
+    [self processNextQueueItem];
+}
+
 #pragma mark - LongUrl methods
 - (NSString *)getLongURLWithParams:(NSDictionary *)params andChannel:(NSString *)channel andTags:(NSArray *)tags andFeature:(NSString *)feature andStage:(NSString *)stage andAlias:(NSString *)alias {
     return [self generateLongURLWithParams:params andChannel:channel andTags:tags andFeature:feature andStage:stage andAlias:alias];
@@ -667,14 +728,60 @@ static int BNCDebugTriggerFingersSimulator = 2;
     return [self generateLongURLWithParams:params andChannel:nil andTags:nil andFeature:feature andStage:stage andAlias:alias];
 }
 
+#pragma mark - Discoverable content methods
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description callback:callback];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable callback:callback];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type callback:callback];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type thumbnailUrl:thumbnailUrl callback:callback];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type thumbnailUrl:thumbnailUrl keywords:keywords callback:callback];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams publiclyIndexable:(BOOL)publiclyIndexable {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable thumbnailUrl:thumbnailUrl userInfo:linkParams];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable thumbnailUrl:thumbnailUrl keywords:keywords userInfo:linkParams];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type thumbnailUrl:thumbnailUrl keywords:keywords userInfo:linkParams];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type thumbnailUrl:thumbnailUrl keywords:keywords];
+}
+
+- (void)createDiscoverableContentWithTitle:(NSString *)title description:(NSString *)description thumbnailUrl:(NSURL *)thumbnailUrl linkParams:(NSDictionary *)linkParams type:(NSString *)type publiclyIndexable:(BOOL)publiclyIndexable keywords:(NSSet *)keywords callback:(callbackWithUrl)callback {
+    [self.contentDiscoveryManager indexContentWithTitle:title description:description publiclyIndexable:publiclyIndexable type:type thumbnailUrl:thumbnailUrl keywords:keywords userInfo:linkParams callback:callback];
+}
+
 #pragma mark - Referral methods
 
 - (NSString *)getReferralUrlWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel {
-    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_REFERRAL andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:tags andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_REFERRAL andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (NSString *)getReferralUrlWithParams:(NSDictionary *)params andChannel:(NSString *)channel {
-    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_REFERRAL andStage:nil andParams:params ignoreUAString:nil];
+    return [self generateShortUrl:nil andAlias:nil andType:BranchLinkTypeUnlimitedUse andMatchDuration:0 andChannel:channel andFeature:BRANCH_FEATURE_TAG_REFERRAL andStage:nil andParams:params ignoreUAString:nil forceLinkCreation:NO];
 }
 
 - (void)getReferralUrlWithParams:(NSDictionary *)params andTags:(NSArray *)tags andChannel:(NSString *)channel andCallback:(callbackWithUrl)callback {
@@ -734,7 +841,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 }
 
 - (void)getPromoCodeWithPrefix:(NSString *)prefix amount:(NSInteger)amount expiration:(NSDate *)expiration bucket:(NSString *)bucket usageType:(BranchPromoCodeUsageType)usageType rewardLocation:(BranchPromoCodeRewardLocation)rewardLocation useOld:(BOOL)useOld callback:(callbackWithParams)callback {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -763,7 +870,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         return;
     }
 
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -788,7 +895,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
         return;
     }
     
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -844,7 +951,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - URL Generation methods
 
 - (void)generateShortUrl:(NSArray *)tags andAlias:(NSString *)alias andType:(BranchLinkType)type andMatchDuration:(NSUInteger)duration andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andParams:(NSDictionary *)params andCallback:(callbackWithUrl)callback {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:NO];
     }
     
@@ -862,7 +969,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
     [self processNextQueueItem];
 }
 
-- (NSString *)generateShortUrl:(NSArray *)tags andAlias:(NSString *)alias andType:(BranchLinkType)type andMatchDuration:(NSUInteger)duration andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andParams:(NSDictionary *)params ignoreUAString:(NSString *)ignoreUAString {
+- (NSString *)generateShortUrl:(NSArray *)tags andAlias:(NSString *)alias andType:(BranchLinkType)type andMatchDuration:(NSUInteger)duration andChannel:(NSString *)channel andFeature:(NSString *)feature andStage:(NSString *)stage andParams:(NSDictionary *)params ignoreUAString:(NSString *)ignoreUAString forceLinkCreation:(BOOL)forceLinkCreation {
     NSString *shortURL = nil;
     
     BNCLinkData *linkData = [self prepareLinkDataFor:tags andAlias:alias andType:type andMatchDuration:duration andChannel:channel andFeature:feature andStage:stage andParams:params ignoreUAString:ignoreUAString];
@@ -885,6 +992,11 @@ static int BNCDebugTriggerFingersSimulator = 2;
             }
         }
         else {
+            if (forceLinkCreation) {
+                if (self.branchKey) {
+                    return [BranchShortUrlSyncRequest createLinkFromBranchKey:self.branchKey tags:tags alias:alias type:type matchDuration:duration channel:channel feature:feature stage:stage params:params];
+                }
+            }
             NSLog(@"Branch SDK Error: making request before init succeeded!");
         }
     }
@@ -951,7 +1063,7 @@ static int BNCDebugTriggerFingersSimulator = 2;
 #pragma mark - Application State Change methods
 
 - (void)applicationDidBecomeActive {
-    if (!self.isInitialized) {
+    if (!self.isInitialized && !self.preferenceHelper.isContinuingUserActivity) {
         [self initUserSessionAndCallCallback:YES];
     }
     
@@ -1110,6 +1222,10 @@ static int BNCDebugTriggerFingersSimulator = 2;
         }
     };
 
+    if ([BNCSystemObserver getOSVersion].integerValue >= 9 && self.cookieBasedMatchingEnabled) {
+        [[BNCStrongMatchHelper strongMatchHelper] createStrongMatchWithBranchKey:self.branchKey];
+    }
+
     // If there isn't already an Open / Install request, add one to the queue
     if (![self.requestQueue containsInstallOrOpen]) {
         BranchOpenRequest *req = [[clazz alloc] initWithCallback:initSessionCallback];
@@ -1148,9 +1264,16 @@ static int BNCDebugTriggerFingersSimulator = 2;
             UIViewController <BranchDeepLinkingController> *branchSharingController = self.deepLinkControllers[key];
             [branchSharingController configureControlWithData:latestReferringParams];
             branchSharingController.deepLinkingCompletionDelegate = self;
-            
             self.deepLinkPresentingController = [[[UIApplication sharedApplication].delegate window] rootViewController];
-            [self.deepLinkPresentingController presentViewController:branchSharingController animated:YES completion:NULL];
+            
+            if ([self.deepLinkPresentingController presentedViewController]) {
+                [self.deepLinkPresentingController dismissViewControllerAnimated:NO completion:^{
+                    [self.deepLinkPresentingController presentViewController:branchSharingController animated:YES completion:NULL];
+                }];
+            }
+            else {
+                [self.deepLinkPresentingController presentViewController:branchSharingController animated:YES completion:NULL];
+            }
         }
     }
 }
