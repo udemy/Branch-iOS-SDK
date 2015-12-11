@@ -1,5 +1,35 @@
 Branch iOS SDK change log
 
+- v0.11.11
+  * fixed dashboard debug mode for iOS 9
+  * fixed default value of userIdentity
+  * fixed race condition in PrefererencesHelper
+  * fixed race condition in initSession
+  * added check for non-nil sessionID
+
+- v0.11.10
+  * revert fix for race condition until we can test with more partners
+
+- v0.11.9
+  * updated BNCServerInterface tests
+  * deprecated promo/referral codes
+  * added logoutWithCallback method
+  * small change to update session id if necessary
+  * fixed race condition if SDK methods are invoked while initSession is in progress
+  * updated license
+  * added missing headers to framework
+  * made BUO share sheet method safe for iPads
+
+- v0.11.8
+  * added support for the brand new BranchUniversalObject
+    * easy tracking of views on content
+    * easy creation of links
+    * easy sharing
+    * easy listing for Spotlight search
+  * fixed bugs / made additions for debug mode
+  * squashed annoying warnings that some users saw
+  * safer unarchiving of saved info (BNCPreferenceHelper) 
+
 - v0.11.6
   * fix race condition if certain methods are invoked before initSession
 
