@@ -1,5 +1,23 @@
 Branch iOS SDK change log
 
+- v0.11.16
+  * increased timeout for SFSafariViewController
+  * removed init session methods that do not use launchOptions
+
+- v0.11.15
+  * improvements on share sheet
+  * Slack bug fix
+  * new completion handler for share sheet
+
+- v0.11.14
+  * include channel when generating spotlight link
+  * push notification support
+  * workaround for Facebook sometimes returning NO from didFinishLaunching
+  * spotlight IDs optionally returned in indexing callbacks
+  * added ability to have custom parameters appear in deeplink data for debugging
+  * removed fftl 
+  * added externalIntentURI to capture referrals
+
 - v0.11.13
   * fixed race condition when Universal Link is clicked (introduced in 0.11.12 only)
   * updated TestBed app to use Branch Universal Object
